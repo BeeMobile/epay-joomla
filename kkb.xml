@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<extension version="2.5" type="plugin" group="vmpayment">
+    <name>kkb</name>
+    <creationDate>December 04 2014</creationDate>
+    <author>Mirzhan Kuanshaliyev</author>
+    <authorUrl>http://www.virtuemart.net</authorUrl>
+    <copyright>Copyright (C) 2004-2014 Virtuemart Team. All rights reserved.</copyright>
+    <license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
+    <version>3.0.2</version>
+    <description>epay.kkb.kz</description>
+    <files>
+        <filename plugin="kkb">kkb.php</filename>
+        <folder>language</folder>
+    </files>
+
+
+    <vmconfig>
+        <fields name="params">
+            <fieldset name="basic" addfieldpath="/plugins/vmpayment/kkb/kkb/fields">
+                <field type="getkkb" default=""/>
+
+                <field class="level1" type="vmtitle" default="VMPAYMENT_KKB_BASIC_PARAMS"/>
+                <field class="" name="sandbox" type="radio" default="1" label="VMPAYMENT_KKB_SHOP_MODE"
+                       description="VMPAYMENT_KKB_SHOP_MODE_DESC">
+                    <option value="0">VMPAYMENT_KKB_PRODUCTION</option>
+                    <option value="1">VMPAYMENT_KKB_SANDBOX</option>
+                </field>
+                <field class="sandbox_warning" type="vmtitle" default=""
+                       description="VMPAYMENT_KKB_SANDBOX_WARNING"/>
+
+
+                <!-- Live -->
+
+                <field class="live required" name="LIVE_URL" type="text" size="80" default="https://epay.kkb.kz/jsp/process/logon.jsp"
+                       label="VMPAYMENT_KKB_URL"/>
+
+                <field class="live required" name="LIVE_MERCHANT_CERTIFICATE_ID" type="text" size="80" default=""
+                       label="VMPAYMENT_KKB_MERCHANT_CERTIFICATE_ID"/>
+                <field class="live required" name="LIVE_MERCHANT_NAME" type="text" size="80" default=""
+                       label="VMPAYMENT_KKB_MERCHANT_NAME"/>
+                <field class="live required" name="LIVE_MERCHANT_ID" type="text" size="80" default=""
+                       label="VMPAYMENT_KKB_MERCHANT_ID"/>
+
+
+
+                <field class="live certificate" name="LIVE_PUBLIC_KEY" type="getcertificate"
+                       directory="kkb" stripext="0" exclude="^_" default=""
+                       label="VMPAYMENT_KKB_PUBLIC_KEY_CERTIFICATE"/>
+
+                <field class="live certificate" name="LIVE_PRIVATE_KEY" type="getcertificate"
+                       directory="kkb" stripext="0" exclude="^_" default=""
+                       label="VMPAYMENT_KKB_PRIVATE_KEY_CERTIFICATE"/>
+
+                <field class="live required" name="LIVE_PRIVATE_KEY_PASS" type="password" size="80" default=""
+                       label="VMPAYMENT_KKB_PRIVATE_KEY_PASS"/>
+
+
+                <!-- Sandbox -->
+
+                <field class="sandbox required" name="SANDBOX_URL" type="text" size="80" default="https://3dsecure.kkb.kz/jsp/process/logon.jsp"
+                       label="VMPAYMENT_KKB_URL"/>
+
+                <field class="sandbox required" name="SANDBOX_MERCHANT_CERTIFICATE_ID" type="text" size="80" default="00C182B189"
+                       label="VMPAYMENT_KKB_MERCHANT_CERTIFICATE_ID"/>
+                <field class="sandbox required" name="SANDBOX_MERCHANT_NAME" type="text" size="80" default="Test shop"
+                       label="VMPAYMENT_KKB_MERCHANT_NAME"/>
+                <field class="sandbox required" name="SANDBOX_MERCHANT_ID" type="text" size="80" default="92061101"
+                       label="VMPAYMENT_KKB_MERCHANT_ID"/>
+
+
+
+                <field class="sandbox certificate" name="SANDBOX_PUBLIC_KEY" type="getcertificate"
+                       directory="kkb" stripext="0" exclude="^_" default="test_pub.pem"
+                       label="VMPAYMENT_KKB_PUBLIC_KEY_CERTIFICATE"/>
+
+                <field class="sandbox certificate" name="SANDBOX_PRIVATE_KEY" type="getcertificate"
+                       directory="kkb" stripext="0" exclude="^_" default="test_prv.pem"
+                       label="VMPAYMENT_KKB_PRIVATE_KEY_CERTIFICATE"/>
+
+                <field class="sandbox required" name="SANDBOX_PRIVATE_KEY_PASS" type="password" size="80" default="nissan"
+                       label="VMPAYMENT_KKB_PRIVATE_KEY_PASS"/>
+
+
+
+                <field type="vmtitle" default="VMPAYMENT_KKB_DEBUG_SECTION"
+                       description=""/>
+                <field name="log" type="radio" default="0" label="VMPAYMENT_KKB_LOG"
+                       description="VMPAYMENT_KKB_LOG_DESC">
+                    <option value="0">COM_VIRTUEMART_NO</option>
+                    <option value="1">COM_VIRTUEMART_YES</option>
+                </field>
+
+            </fieldset>
+        </fields>
+    </vmconfig>
+
+</extension>
