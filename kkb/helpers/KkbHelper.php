@@ -140,10 +140,10 @@ function process_XML($filename,$reparray) {
 };
 
 function createQuery($template, $repArray) {
-
+    $content = $template;
     foreach ($repArray as $key => $value)
     {
-        $content = str_replace("[".$key."]",$value, $template);
+        $content = str_replace("[".$key."]",$value, $content);
     };
 
     return $content;
@@ -207,8 +207,9 @@ class KkbHelper
     private $XML_TEMPLATE;
     private $XML_COMMAND_TEMPLATE;
     private $PUBLIC_KEY_PATH;
+    private $ACTION_URL;
 
-    public function __construct($MERCHANT_CERTIFICATE_ID, $MERCHANT_NAME, $MERCHANT_ID, $PRIVATE_KEY_PATH, $PRIVATE_KEY_PASS,  $PUBLIC_KEY_PATH)
+    public function __construct($MERCHANT_CERTIFICATE_ID, $MERCHANT_NAME, $MERCHANT_ID, $PRIVATE_KEY_PATH, $PRIVATE_KEY_PASS,  $PUBLIC_KEY_PATH, $ACTION_URL)
     {
         $this->MERCHANT_CERTIFICATE_ID = $MERCHANT_CERTIFICATE_ID;
         $this->MERCHANT_NAME = $MERCHANT_NAME;
@@ -220,8 +221,13 @@ class KkbHelper
 
         $this->XML_TEMPLATE = '<merchant cert_id="[MERCHANT_CERTIFICATE_ID]" name="[MERCHANT_NAME]"><order order_id="[ORDER_ID]" amount="[AMOUNT]" currency="[CURRENCY]"><department merchant_id="[MERCHANT_ID]" amount="[AMOUNT]"/></order></merchant>';
         $this->XML_COMMAND_TEMPLATE = '<merchant id="[MERCHANT_ID]"><command type="[COMMAND]"/><payment reference="[REFERENCE_ID]" approval_code="[APPROVAL_CODE]" orderid="[ORDER_ID]" amount="[AMOUNT]" currency_code="[CURRENCY]"/><reason>[REASON]</reason></merchant>';
+        $this->ACTION_URL = $ACTION_URL;
     }
 
+    public function getActionUrl()
+    {
+        return $this->ACTION_URL;
+    }
 
     public function process_request($order_id, $currency_code, $amount, $b64=true) {
 
@@ -307,7 +313,7 @@ class KkbHelper
         $request['APPROVAL_CODE'] = $approval_code;
         $request['ORDER_ID'] = $order_id;
         $request['CURRENCY'] = $currency_code;
-        $request['MERCHANT_ID'] = $this->MERCHANT_ID;
+        //$request['MERCHANT_ID'] = $this->MERCHANT_ID;
         $request['AMOUNT'] = $amount;
         $request['REASON'] = $reason;
 
@@ -326,7 +332,7 @@ class KkbHelper
 
 
 
-    public function process_complete($reference, $approval_code, $order_id, $currency_code, $amount, $config_file) {
+    public function process_complete($reference, $approval_code, $order_id, $currency_code, $amount) {
 
         if(!$reference) return "Empty Transaction ID";
 
@@ -349,7 +355,7 @@ class KkbHelper
         $request['APPROVAL_CODE'] = $approval_code;
         $request['ORDER_ID'] = $order_id;
         $request['CURRENCY'] = $currency_code;
-        $request['MERCHANT_ID'] = $this->MERCHANT_ID;
+        //$request['MERCHANT_ID'] = $this->MERCHANT_ID;
         $request['AMOUNT'] = $amount;
         $request['REASON'] = '';
 
@@ -364,6 +370,29 @@ class KkbHelper
         $result_sign = '<merchant_sign type="RSA" cert_id="' . $this->MERCHANT_CERTIFICATE_ID . '">'.$kkb->sign64($result).'</merchant_sign>';
         $xml = "<document>".$result.$result_sign."</document>";
         return $xml;
+    }
+
+
+    public function request($url)
+    {
+
+        //$fOut = fopen('/home/kiwi/external/testcurl.txt', "w" );
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL,$url); // set url to post to
+        curl_setopt($ch, CURLOPT_FAILONERROR, 1);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);// allow redirects
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER,1); // return into a variable
+        curl_setopt($ch, CURLOPT_TIMEOUT, 3); // times out after 4s
+        //curl_setopt($ch, CURLOPT_STDERR, $fOut );
+        //curl_setopt($ch, CURLOPT_VERBOSE, 1);
+        curl_setopt($ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_0);
+        $result = curl_exec($ch); // run the whole process
+        curl_close($ch);
+
+//        $xml_parser = new xml();
+//        $result = $xml_parser->parse($result);
+
+        return $result;
     }
 
 }

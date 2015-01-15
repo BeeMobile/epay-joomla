@@ -82,6 +82,31 @@
 
 
 
+                <field name="payment_approve" type="list" default="automatic" label="VMPAYMENT_KKB_PAYMENT_APPROVE"
+                       description="VMPAYMENT_KKB_PAYMENT_APPROVE_DESC">
+                    <option value="automatic">VMPAYMENT_KKB_PAYMENT_APPROVE_AUTOMATIC</option>
+                    <option value="manual">VMPAYMENT_KKB_PAYMENT_APPROVE_MANUAL</option>
+                </field>
+
+                <!-- Order status -->
+                <!-- ============ -->
+
+                <field type="vmtitle" default="VMPAYMENT_KKB_ORDER_STATUS_SECTION"
+                       description="VMPAYMENT_KKB_ORDER_STATUS_SECTION_DESC"/>
+
+                <field name="status_pending" type="vmorderstate" scope="com_virtuemart" default="U"
+                       label="VMPAYMENT_KKB_STATUS_PENDING" description="VMPAYMENT_KKB_STATUS_PENDING_TIP"/>
+                <field name="status_success" type="vmorderstate" scope="com_virtuemart" default="C"
+                       label="VMPAYMENT_KKB_STATUS_SUCCESS" description="VMPAYMENT_KKB_STATUS_SUCCESS_TIP"/>
+                <field name="status_canceled" type="vmorderstate" scope="com_virtuemart" default="X"
+                       label="VMPAYMENT_KKB_STATUS_CANCEL" description="VMPAYMENT_KKB_STATUS_CANCEL_TIP"/>
+                <field class="Authorization" name="status_capture" type="vmorderstate" scope="com_virtuemart"
+                       default="S"
+                       label="VMPAYMENT_KKB_STATUS_CAPTURE" description="VMPAYMENT_KKB_STATUS_CAPTURE_TIP"/>
+                <field name="status_refunded" type="vmorderstate" scope="com_virtuemart" default="R"
+                       label="VMPAYMENT_KKB_STATUS_REFUND" description="VMPAYMENT_KKB_STATUS_REFUND_TIP"/>
+
+
                 <field type="vmtitle" default="VMPAYMENT_KKB_DEBUG_SECTION"
                        description=""/>
                 <field name="log" type="radio" default="0" label="VMPAYMENT_KKB_LOG"
