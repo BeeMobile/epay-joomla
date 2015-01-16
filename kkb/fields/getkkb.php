@@ -17,7 +17,7 @@ class JFormFieldGetKkb extends JFormField {
 		JHtml::_('behavior.colorpicker');
 
 		vmJsApi::addJScript( '/plugins/vmpayment/kkb/kkb/assets/js/admin.js');
-		vmJsApi::css('kkb', 'plugins/vmpayment/kkb/kkb/assets/css/');
+		vmJsApi::css('admin', 'plugins/vmpayment/kkb/kkb/assets/css/');
 
 
         return 'Epay.kkb.kz';

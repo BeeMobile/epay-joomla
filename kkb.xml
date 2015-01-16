@@ -19,6 +19,10 @@
             <fieldset name="basic" addfieldpath="/plugins/vmpayment/kkb/kkb/fields">
                 <field type="getkkb" default=""/>
 
+                <field name="payment_logos" type="vmfiles" directory="/images/stories/virtuemart/payment"
+                       hide_none="1" label="VMPAYMENT_STANDARD_LOGOS"
+                       size="40"
+                       description="VMPAYMENT_STANDARD_LOGOS_TIP"/>
                 <field class="level1" type="vmtitle" default="VMPAYMENT_KKB_BASIC_PARAMS"/>
                 <field class="" name="sandbox" type="radio" default="1" label="VMPAYMENT_KKB_SHOP_MODE"
                        description="VMPAYMENT_KKB_SHOP_MODE_DESC">
@@ -114,6 +118,8 @@
                     <option value="0">COM_VIRTUEMART_NO</option>
                     <option value="1">COM_VIRTUEMART_YES</option>
                 </field>
+                <field name="cost_per_transaction" type="hidden" default=""/>
+                <field name="cost_percent_total" type="hidden" default=""/>
 
             </fieldset>
         </fields>

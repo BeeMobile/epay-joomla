@@ -11,7 +11,6 @@ jQuery().ready(function ($) {
             var sandboxmode = 'production';
         }
 
-
         $('.std,.api,.live,.sandbox,.sandbox_warning, .accelerated_onboarding').parents('.control-group').hide();
         $('.get_sandbox_credentials').hide();
         $('.get_paypal_credentials').hide();

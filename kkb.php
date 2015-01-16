@@ -165,11 +165,13 @@ class plgVmPaymentKkb extends vmPSPlugin {
         $payment_currency_id = shopFunctions::getCurrencyIDByName('KZT');
         $totalInPaymentCurrency = vmPSPlugin::getAmountInCurrency($order['details']['BT']->order_total, $payment_currency_id);
         $amount = $totalInPaymentCurrency['value'];
-        $amount = 5;
 
         $virtuemart_order_id = VirtueMartModelOrders::getOrderIdByOrderNumber($order['details']['BT']->order_number);
 
-        $success_url = JROUTE::_(JURI::root() . 'index.php?option=com_virtuemart&view=orders&layout=details&order_number=' . $order['details']['BT']->order_number . '&order_pass=' . $order['details']['BT']->order_pass);
+
+        //$success_url = JROUTE::_(JURI::root() . 'index.php?option=com_virtuemart&view=orders&layout=details&order_number=' . $order['details']['BT']->order_number . '&order_pass=' . $order['details']['BT']->order_pass);
+        $success_url = JROUTE::_(JURI::root() . 'index.php?option=com_virtuemart&view=vmplg&task=pluginresponsereceived&on=' . $order['details']['BT']->order_number . '&pm=' . $order['details']['BT']->virtuemart_paymentmethod_id );
+
         $fail_url    = JROUTE::_(JURI::root() . 'index.php?option=com_virtuemart&view=pluginresponse&task=pluginUserPaymentCancel&on=' . $order['details']['BT']->order_number . '&pm=' . $order['details']['BT']->virtuemart_paymentmethod_id);
         $result_url  = JROUTE::_(JURI::root() . 'index.php?option=com_virtuemart&view=pluginresponse&task=pluginnotification&pelement=epay_kkb&order_number=' . $virtuemart_order_id);
 
@@ -194,7 +196,7 @@ class plgVmPaymentKkb extends vmPSPlugin {
         $helper = $this->getKkbHelper($method);
         //$amount = 600;
         //$virtuemart_order_id = 19154;
-        $content = $helper->process_request($virtuemart_order_id, $currency_id, $amount);
+        $content = $helper->process_request($virtuemart_order_id, $currency_id, $amount, false);
 
         $email   = $order['details']['BT']->email;
 
@@ -203,11 +205,26 @@ class plgVmPaymentKkb extends vmPSPlugin {
         $dbValues['order_number']                = $order['details']['BT']->order_number;
         $dbValues['virtuemart_paymentmethod_id'] = $this->_virtuemart_paymentmethod_id;
         $dbValues['payment_currency']            = $payment_currency_id;
+        $dbValues['cost_per_transaction'] = $method->cost_per_transaction;
+        $dbValues['cost_percent_total'] = $method->cost_percent_total;
         $dbValues['payment_order_total']         = $amount;
         $this->storePSPluginInternalData($dbValues);
 
-        $html = '<form name="vm_epay_kkb_form" id="vm_epay_kkb_form" method="post" action="' . $helper->getActionUrl() . '">
-		   <input type="hidden" name="Signed_Order_B64" value="' . $content . '">
+        vmJsApi::addJScript('vm.kkbPaymentFormAutoSubmit', '
+  			jQuery(document).ready(function($){
+   				jQuery("body").addClass("vmLoading");
+  				jQuery("body").append("<div class=\"vmLoadingDiv\"><div class=\"vmLoadingDivMsg\"></div></div>");
+    			jQuery("#vm_epay_kkb_form").submit();
+			})
+		');
+
+        $url = $helper->getActionUrl();
+        $message = ' url:' . $url;
+        $message .= ' Xml: ' . $content;
+        $this->debugLog($message, "KKB: _sendRequest:", 'debug');
+
+        $html = '<form name="vm_epay_kkb_form" id="vm_epay_kkb_form" method="post" action="' . $url . '">
+		   <input type="hidden" name="Signed_Order_B64" value="' . base64_encode($content) . '">
 		   <input type="hidden" name="email" value="' . $email . '">
 		   <input type="hidden" name="Language" value="' . $language . '">
 		   <input type="hidden" name="BackLink" value="' . $success_url . '">
@@ -215,9 +232,6 @@ class plgVmPaymentKkb extends vmPSPlugin {
 		   <input type="hidden" name="PostLink" value="' . $result_url . '">
 		   <input type="submit" value="Pay now">
 		</form>';
-        //$html .= '<script type="text/javascript">';
-        //$html .= 'document.forms.vm_epay_kkb_form.submit();';
-        //$html .= '</script>';
 
         $cart->_confirmDone = FALSE;
         $cart->_dataValidated = FALSE;
@@ -401,7 +415,8 @@ class plgVmPaymentKkb extends vmPSPlugin {
             if(isset($_POST["response"])) { $response = $_POST["response"]; };
             $result = $helper->process_response(stripslashes($response));
 
-
+            $message = ' response:' . $_POST["response"];
+            $this->debugLog($message, "KKB: _receivedNotification:", 'debug');
 
 
             $err = false;
@@ -451,16 +466,9 @@ class plgVmPaymentKkb extends vmPSPlugin {
 
 
             if ($err) {
-                $fp = fopen(dirname(__FILE__) . DS . 'error.txt', 'a');
-                fwrite($fp, $err_message."\n");
-                fclose($fp);
                 $status = $method->status_cancel;
             }
             else {
-                $message = date('d.m.Y H:i:s').' Payment successfull. Order ID:'.$order_id;
-                $fp = fopen(dirname(__FILE__) . DS .'success.txt', 'a');
-                fwrite($fp, $message."\n");
-                fclose($fp);
 
                 if ($method->payment_approve == 'automatic')
                 {
@@ -503,6 +511,8 @@ class plgVmPaymentKkb extends vmPSPlugin {
             ob_start();
             $modelOrder->updateStatusForOneOrder($order_id, $order, true);
             ob_end_clean();
+
+
         }
         exit;
         return null;
@@ -511,43 +521,46 @@ class plgVmPaymentKkb extends vmPSPlugin {
     function plgVmOnPaymentResponseReceived(&$html) {
         // the payment itself should send the parameter needed;
 
-        $virtuemart_paymentmethod_id = JRequest::getInt('pm', 0);
+        if (!class_exists('VirtueMartCart')) {
+            require(VMPATH_SITE . DS . 'helpers' . DS . 'cart.php');
+        }
+        if (!class_exists('shopFunctionsF')) {
+            require(VMPATH_SITE . DS . 'helpers' . DS . 'shopfunctionsf.php');
+        }
+        if (!class_exists('VirtueMartModelOrders')) {
+            require(VMPATH_ADMIN . DS . 'models' . DS . 'orders.php');
+        }
+        VmConfig::loadJLang('com_virtuemart_orders', TRUE);
 
+        // the payment itself should send the parameter needed.
+        $virtuemart_paymentmethod_id = vRequest::getInt('pm', 0);
+
+        $order_number = vRequest::getString('on', 0);
         $vendorId = 0;
-        if (!($method = $this->getVmPluginMethod($virtuemart_paymentmethod_id))) {
-            return null; // Another method was selected, do nothing
+        if (!($this->_currentMethod = $this->getVmPluginMethod($virtuemart_paymentmethod_id))) {
+            return NULL; // Another method was selected, do nothing
         }
-        if (!$this->selectedThisElement($method->payment_element)) {
-            return false;
+        if (!$this->selectedThisElement($this->_currentMethod->payment_element)) {
+            return NULL;
         }
 
-        if (!class_exists('VirtueMartModelOrders'))
-            require(JPATH_VM_ADMINISTRATOR . DS . 'models' . DS . 'orders.php');
-
-        $order_number        = JRequest::getVar('on');
-        $virtuemart_order_id = VirtueMartModelOrders::getOrderIdByOrderNumber($order_number);
-        $payment_name        = $this->renderPluginName($method);
-        $html                = '<table>' . "\n";
-        $html .= $this->getHtmlRow('EPAY_KKB_PAYMENT_NAME', $payment_name);
-        $html .= $this->getHtmlRow('EPAY_KKB_ORDER_NUMBER', $virtuemart_order_id);
-        $html .= $this->getHtmlRow('EPAY_KKB_STATUS', JText::_('VMPAYMENT_EPAY_KKB_STATUS_SUCCESS'));
-
-        $html .= '</table>' . "\n";
-
-        if ($virtuemart_order_id) {
-            if (!class_exists('VirtueMartCart'))
-                require(JPATH_VM_SITE . DS . 'helpers' . DS . 'cart.php');
-            // get the correct cart / session
-            $cart = VirtueMartCart::getCart();
-
-            // send the email ONLY if payment has been accepted
-            if (!class_exists('VirtueMartModelOrders'))
-                require(JPATH_VM_ADMINISTRATOR . DS . 'models' . DS . 'orders.php');
-            $order      = new VirtueMartModelOrders();
-            $orderitems = $order->getOrder($virtuemart_order_id);
-            $cart->sentOrderConfirmedEmail($orderitems);
-            $cart->emptyCart();
+        if (!($virtuemart_order_id = VirtueMartModelOrders::getOrderIdByOrderNumber($order_number))) {
+            return NULL;
         }
+        if (!($payments = $this->getDatasByOrderNumber($order_number))) {
+            return '';
+        }
+
+
+        VmConfig::loadJLang('com_virtuemart');
+        $orderModel = VmModel::getModel('orders');
+        $order = $orderModel->getOrder($virtuemart_order_id);
+        // get the correct cart / session
+        $cart = VirtueMartCart::getCart();
+        $cart->emptyCart();
+
+        $app = JFactory::getApplication();
+        $app->redirect(JROUTE::_(JURI::root() . 'index.php?option=com_virtuemart&view=orders&layout=details&order_number=' . $order['details']['BT']->order_number . '&order_pass=' . $order['details']['BT']->order_pass));
 
         return true;
     }
@@ -643,6 +656,10 @@ class plgVmPaymentKkb extends vmPSPlugin {
 
 
     public function plgVmonSelectedCalculatePricePayment (VirtueMartCart $cart, array &$cart_prices, &$cart_prices_name) {
+        if (!($selectedMethod = $this->getVmPluginMethod($cart->virtuemart_paymentmethod_id))) {
+            return FALSE;
+        }
+
         return $this->onSelectedCalculatePrice ($cart, $cart_prices, $cart_prices_name);
     }
 
@@ -757,9 +774,17 @@ class plgVmPaymentKkb extends vmPSPlugin {
         $helper = $this->getKkbHelper($method);
         $xml = $helper->process_complete($result['PAYMENT_REFERENCE'], $result['PAYMENT_APPROVAL_CODE'], (int)$result['ORDER_ORDER_ID'], $result['ORDER_CURRENCY'], $result['PAYMENT_AMOUNT']);
 
-        $url = 'https://epay.kkb.kz/jsp/remote/control.jsp?'. urlencode($xml);
+        $url = 'https://epay.kkb.kz/jsp/remote/control.jsp';
+        $message = ' url:' . $url;
+        $message .= ' Xml: ' . $xml;
+        $this->debugLog($message, "KKB: _sendRequest:", 'debug');
 
-        $response = $helper->request($url);
+        $urlFull = $url . '?'. urlencode($xml);
+
+        $response = $helper->request($urlFull);
+
+        $this->debugLog($response, "KKB: _response:", 'debug');
+
         if ($response) {
             $response_fields['kkb_fullresponse'] = json_encode($response);
         }
@@ -789,9 +814,17 @@ class plgVmPaymentKkb extends vmPSPlugin {
         $helper = $this->getKkbHelper($method);
         $xml = $helper->process_refund($result['PAYMENT_REFERENCE'], $result['PAYMENT_APPROVAL_CODE'], (int)$result['ORDER_ORDER_ID'], $result['ORDER_CURRENCY'], $result['PAYMENT_AMOUNT'], '');
 
-        $url = 'https://epay.kkb.kz/jsp/remote/control.jsp?'. urlencode($xml);
+        $url = 'https://epay.kkb.kz/jsp/remote/control.jsp';
+        $message = ' url:' . $url;
+        $message .= ' Xml: ' . $xml;
+        $this->debugLog($message, "KKB: _sendRequest:", 'debug');
 
-        $response = $helper->request($url);
+        $urlFull = $url . '?'. urlencode($xml);
+
+        $response = $helper->request($urlFull);
+
+        $this->debugLog($response, "KKB: _response:", 'debug');
+
         if ($response) {
             $response_fields['kkb_fullresponse'] = json_encode($response);
         }
