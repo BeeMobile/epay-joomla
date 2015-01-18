@@ -22,7 +22,7 @@ class JFormFieldGetcertificate extends JFormFieldFileList {
 		$certificatePath = JPath::clean($certificatePath);
         // Is the path a folder?
 		if (!is_dir($certificatePath)) {
-			return '<span>' . vmText::sprintf('VMPAYMENT_PAYPAL_CERTIFICATE_FOLDER_NOT_EXIST', $certificatePath) . '</span>';
+			return '<span>' . vmText::sprintf('VMPAYMENT_KKB_CERTIFICATE_FOLDER_NOT_EXIST', $certificatePath) . '</span>';
 		}
 		$path = str_replace('/', DS, $certificatePath);
 
