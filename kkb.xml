@@ -11,6 +11,7 @@
     <files>
         <filename plugin="kkb">kkb.php</filename>
         <folder>language</folder>
+        <folder>kkb</folder>
     </files>
 
 
