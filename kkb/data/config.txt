@@ -1,8 +1,0 @@
-MERCHANT_CERTIFICATE_ID = "00C182B189"	 	; �������� ����� ����������� Cert Serial Number
-MERCHANT_NAME = "Test shop"			; �������� �������� (��������) Shop/merchant Name
-PRIVATE_KEY_FN = "/var/projects/virtuemart/plugins/vmpayment/kkb/kkb/helpers2/test_prv.pem"	; ���� � ��������� ����� Private cert path
-PRIVATE_KEY_PASS = "nissan"			; ������ � ��������� ����� Private cert password
-XML_TEMPLATE_FN = "/var/projects/virtuemart/plugins/vmpayment/kkb/kkb/helpers2/template.xml"	; ���� � XML ������� XML template path
-XML_COMMAND_TEMPLATE_FN = "/var/projects/virtuemart/plugins/vmpayment/kkb/kkb/helpers2/command_template.xml"	; ���� � XML ������� ��� ������ (�������/�������������)
-PUBLIC_KEY_FN = "/var/projects/virtuemart/plugins/vmpayment/kkb/kkb/helpers2/kkbca.pem"		; ���� � ��������� ����� Public cert path
-MERCHANT_ID="92061101"				; �������� �� � ���������� ������

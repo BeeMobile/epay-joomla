@@ -75,7 +75,7 @@
 
 
                 <field class="sandbox certificate" name="SANDBOX_PUBLIC_KEY" type="getcertificate"
-                       directory="kkb" stripext="0" exclude="^_" default="test_pub.pem"
+                       directory="kkb" stripext="0" exclude="^_" default="kkbca.pem"
                        label="VMPAYMENT_KKB_PUBLIC_KEY_CERTIFICATE"/>
 
                 <field class="sandbox certificate" name="SANDBOX_PRIVATE_KEY" type="getcertificate"

@@ -1,1 +1,0 @@
-<merchant cert_id="[MERCHANT_CERTIFICATE_ID]" name="[MERCHANT_NAME]"><order order_id="[ORDER_ID]" amount="[AMOUNT]" currency="[CURRENCY]"><department merchant_id="[MERCHANT_ID]" amount="[AMOUNT]"/></order></merchant>
