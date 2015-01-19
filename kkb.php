@@ -297,7 +297,7 @@ class plgVmPaymentKkb extends vmPSPlugin {
                     if (is_array($kkb_data))
                     {
                         foreach ($kkb_data as $key => $value) {
-                            $html .= ' <b>' . $key . '</b>:&nbsp;' . $value . '<br />';
+                            $html .= ' <b>' . $key . '</b>:&nbsp;' . htmlspecialchars($value) . '<br />';
                         }
                     } else {
                         $html .= htmlspecialchars($kkb_data);
@@ -774,7 +774,7 @@ class plgVmPaymentKkb extends vmPSPlugin {
         $helper = $this->getKkbHelper($method);
         $xml = $helper->process_complete($result['PAYMENT_REFERENCE'], $result['PAYMENT_APPROVAL_CODE'], (int)$result['ORDER_ORDER_ID'], $result['ORDER_CURRENCY'], $result['PAYMENT_AMOUNT']);
 
-        $url = 'https://epay.kkb.kz/jsp/remote/control.jsp';
+        $url = 'http://3dsecure.kkb.kz/jsp/remote/control.jsp';
         $message = ' url:' . $url;
         $message .= ' Xml: ' . $xml;
         $this->debugLog($message, "KKB: _sendRequest:", 'debug');
@@ -814,7 +814,7 @@ class plgVmPaymentKkb extends vmPSPlugin {
         $helper = $this->getKkbHelper($method);
         $xml = $helper->process_refund($result['PAYMENT_REFERENCE'], $result['PAYMENT_APPROVAL_CODE'], (int)$result['ORDER_ORDER_ID'], $result['ORDER_CURRENCY'], $result['PAYMENT_AMOUNT'], '');
 
-        $url = 'https://epay.kkb.kz/jsp/remote/control.jsp';
+        $url = 'http://3dsecure.kkb.kz/jsp/remote/control.jsp';
         $message = ' url:' . $url;
         $message .= ' Xml: ' . $xml;
         $this->debugLog($message, "KKB: _sendRequest:", 'debug');
