@@ -20,10 +20,11 @@
             <fieldset name="basic" addfieldpath="/plugins/vmpayment/kkb/kkb/fields">
                 <field type="getkkb" default=""/>
 
-                <field name="payment_logos" type="vmfiles" directory="/images/stories/virtuemart/payment"
+                <field name="payment_logos" type="vmfiles" directory="/plugins/vmpayment/kkb/kkb/assets/images/"
                        hide_none="1" label="VMPAYMENT_KKB_LOGOS"
                        size="40"
-                       description="VMPAYMENT_KKB_LOGOS_TIP"/>
+                       description="VMPAYMENT_KKB_LOGOS_TIP"
+                       default="kkb.png"/>
                 <field class="level1" type="vmtitle" default="VMPAYMENT_KKB_BASIC_PARAMS"/>
                 <field class="" name="sandbox" type="radio" default="1" label="VMPAYMENT_KKB_SHOP_MODE"
                        description="VMPAYMENT_KKB_SHOP_MODE_DESC">
