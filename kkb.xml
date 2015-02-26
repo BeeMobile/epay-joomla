@@ -2,7 +2,7 @@
 <extension version="2.5" type="plugin" group="vmpayment">
     <name>kkb</name>
     <creationDate>December 04 2014</creationDate>
-    <author>Mirzhan Kuanshaliyev</author>
+    <author>BeeMobile</author>
     <authorUrl>http://www.virtuemart.net</authorUrl>
     <copyright>Copyright (C) 2004-2014 Virtuemart Team. All rights reserved.</copyright>
     <license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
